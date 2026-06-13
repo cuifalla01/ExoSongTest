@@ -5,41 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EXO 應援小工具</title>
     <style>
-        /* 這裡保留所有昨天做好的漂亮深色 CSS 樣式，完全不用變動 */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; background-color: #121212; color: #ffffff; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .top-navbar { background-color: #1a1a1a; padding: 10px 12px; box-sizing: border-box; border-bottom: 1px solid #282828; display: flex; flex-direction: column; gap: 6px; }
-        .header-row { display: flex; justify-content: space-between; align-items: center; }
-        .header-row h4 { margin: 0; font-weight: 500; color: #e0e0e0; font-size: 15px; }
-        .notice-btn { background-color: #333333; color: #b3b3b3; border: none; border-radius: 20px; padding: 4px 10px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-        .search-row { display: flex; gap: 6px; }
-        .search-input { flex: 1; padding: 8px 10px; font-size: 14px; border-radius: 6px; background-color: #252525; color: #fff; border: 1px solid #383838; box-sizing: border-box; }
-        select { flex: 1.2; padding: 8px 6px; font-size: 14px; border-radius: 6px; background-color: #252525; color: #fff; border: 1px solid #383838; box-sizing: border-box; }
-        .video-section { padding: 8px 12px 4px 12px; box-sizing: border-box; background-color: #121212; }
-        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.6); background: #000; }
+        /* 質感黑化底色，防拷貝防選取 */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            margin: 0; padding: 0; background-color: #121212; color: #ffffff; 
+            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+            display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+        }
+
+        /* 區塊 1: 頂部固定單列選單區 (刪除標題，合併為單列) */
+        .top-navbar {
+            background-color: #1a1a1a; padding: 12px; box-sizing: border-box;
+            border-bottom: 1px solid #282828; display: flex; align-items: center; gap: 8px;
+        }
+        
+        /* 依比例 3 : 2 : 0.5 分配寬度 */
+        select {
+            flex: 3; padding: 10px 6px; font-size: 14px; border-radius: 6px;
+            background-color: #252525; color: #fff; border: 1px solid #383838; box-sizing: border-box;
+            min-width: 0; /* 防止內容過長撐開 */
+        }
+        .search-input {
+            flex: 2; padding: 10px; font-size: 14px; border-radius: 6px;
+            background-color: #252525; color: #fff; border: 1px solid #383838; box-sizing: border-box;
+            min-width: 0;
+        }
+        .notice-btn {
+            flex: 0.5; background-color: #333333; color: #b3b3b3; border: none; border-radius: 6px;
+            padding: 10px 0; font-size: 14px; cursor: pointer; text-align: center; box-sizing: border-box;
+            white-space: nowrap;
+        }
+        .notice-btn:active { background-color: #444; }
+
+        /* 區塊 2: YouTube 影片區 */
+        .video-section {
+            padding: 4px 12px 4px 12px; box-sizing: border-box; background-color: #121212;
+        }
+        .video-container { 
+            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; 
+            border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.6); background: #000;
+        }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .lyrics-section { flex: 1; overflow-y: auto; padding: 6px 14px 20px 14px; box-sizing: border-box; background: linear-gradient(to bottom, #151515, #121212); }
+        
+        /* 區塊 3: 下方歌詞獨立滾動區 */
+        .lyrics-section {
+            flex: 1; overflow-y: auto; padding: 6px 14px 20px 14px; box-sizing: border-box;
+            background: linear-gradient(to bottom, #151515, #121212);
+        }
         .line { margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid #1c1c1c; text-align: left; }
         .kr { font-size: 14px; color: #aaaaaa; line-height: 1.4; }
         .pron { font-size: 18px; color: #00ffcc; font-weight: bold; margin-top: 4px; letter-spacing: 0.3px; }
         .loading { font-size: 16px; color: #777; text-align: center; margin-top: 60px; }
-        .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
-        .modal-content { background-color: #222; margin: 0 25px; padding: 20px; border-radius: 12px; border: 1px solid #333; text-align: left; max-width: 400px; width: 100%; }
+
+        /* 公告彈出視窗 */
+        .modal {
+            display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: #222; margin: 0 25px; padding: 20px; border-radius: 12px;
+            border: 1px solid #333; text-align: left; max-width: 400px; width: 100%;
+        }
         .modal-title { font-size: 16px; font-weight: bold; color: #00ffcc; margin-bottom: 10px; }
         .modal-text { font-size: 14px; color: #e0e0e0; line-height: 1.5; white-space: pre-wrap; margin-bottom: 15px; }
-        .modal-close { background-color: #333; color: #fff; border: none; border-radius: 6px; padding: 8px 0; width: 100%; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .modal-close {
+            background-color: #333; color: #fff; border: none; border-radius: 6px;
+            padding: 8px 0; width: 100%; font-size: 14px; font-weight: bold; cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
     <div class="top-navbar">
-        <div class="header-row">
-            <h4>🎤 EXO 大合唱應援工具</h4>
-            <button class="notice-btn" onclick="openModal()">📢 公告</button>
-        </div>
-        <div class="search-row">
-            <input type="text" id="songSearch" class="search-input" placeholder="🔍 搜尋歌名..." oninput="filterSongs()">
-            <select id="songSelector" onchange="displaySongLyrics()" style="display:none;"></select>
-        </div>
+        <select id="songSelector" onchange="displaySongLyrics()" style="display:none;"></select>
+        <input type="text" id="songSearch" class="search-input" placeholder="🔍 搜尋..." oninput="filterSongs()">
+        <button class="notice-btn" onclick="openModal()">📢</button>
     </div>
 
     <div class="video-section" id="playerContainer" style="display:none;">
@@ -61,14 +101,11 @@
     </div>
 
     <script>
-        // ⚠️ 關鍵：請把下方引號內換成你剛剛複製的 Google Apps Script API 網址！
-        var GAS_API_URL = "https://script.google.com/macros/s/AKfycbypBhIU9UUiUtjHUW6sS4whG0AmpuzpFeVLGRJ02T85bf_ZSNkJCsAaRaX3G5q3yKqh/exec";
-
+        // ⚠️ 這裡維持引入你們的 data.json
         var allSongsData = [];
 
         window.onload = function() {
-            // 跳出 Google 沙箱後，我們可以用現代最標準的 fetch 函式來抓資料
-            fetch(GAS_API_URL)
+            fetch('./data.json')
                 .then(function(response) { return response.json(); })
                 .then(function(result) {
                     allSongsData = result.songs;
@@ -81,10 +118,11 @@
                     initDropdown(allSongsData);
                 })
                 .catch(function(err) {
-                    document.getElementById("statusMessage").innerText = "讀取資料庫失敗，請確認網路連線。";
+                    document.getElementById("statusMessage").innerText = "讀取資料庫失敗。";
                 });
         };
 
+        // 初始化選單
         function initDropdown(songsToDisplay) {
             var selector = document.getElementById("songSelector");
             selector.innerHTML = "";
@@ -101,6 +139,7 @@
             else { document.getElementById("lyricsBox").innerHTML = '<div class="loading">找不到相符的歌曲。</div>'; document.getElementById("youtubePlayer").src = ""; }
         }
 
+        // 搜尋歌名功能
         function filterSongs() {
             var keyword = document.getElementById("songSearch").value.toLowerCase().trim();
             if (keyword === "") { initDropdown(allSongsData); return; }
@@ -111,6 +150,7 @@
             initDropdown(filtered);
         }
 
+        // 切換歌曲與歌詞
         function displaySongLyrics() {
             var selectedIndex = document.getElementById("songSelector").value;
             var song = allSongsData[selectedIndex];
