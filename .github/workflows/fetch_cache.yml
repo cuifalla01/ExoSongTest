@@ -9,11 +9,14 @@ on:
 permissions:
   contents: write
 
+# 🌟 核心修正：在這裡加上環境變數，直接強行對齊 6/16 即將上線的 Node.js 24 新規定！
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   update-cache:
     runs-on: ubuntu-latest
     steps:
-      # 🌟 這裡升級成最新的 @v4 版本，完美支援 Node.js 24，警告就會消失！
       - name: 檢查專案程式碼
         uses: actions/checkout@v4
 
