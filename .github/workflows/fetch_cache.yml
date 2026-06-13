@@ -1,0 +1,36 @@
+name: 每日定時更新歌詞快取
+
+on:
+  schedule:
+    - cron: '0 4,16 * * *'
+  workflow_dispatch:
+
+# 🌟 核心：必須加這兩行，GitHub 機器人才能把抓到的歌詞寫入你的儲存庫
+permissions:
+  contents: write
+
+jobs:
+  update-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 檢查專案程式碼
+        uses: actions/checkout@v3
+
+jobs:
+  update-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 檢查專案程式碼
+        uses: actions/checkout@v3
+
+      - name: 向 Google Apps Script 抓取最新歌詞與公告
+        run: |
+          # ⚠️ 這裡換成你原本完美的 Google API 網址
+          curl -L "https://script.google.com/macros/s/AKfycbypBhIU9UUiUtjHUW6sS4whG0AmpuzpFeVLGRJ02T85bf_ZSNkJCsAaRaX3G5q3yKqh/exec" -o data.json
+
+      - name: 檢查資料是否有變動並自動推送到網站
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Bot"
+          git add data.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 自動更新最新歌詞與公告快取" && git push)
